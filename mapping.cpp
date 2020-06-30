@@ -282,10 +282,10 @@ RTC::ReturnCode_t mapping::onExecute(RTC::UniqueId ec_id)
         //get_data(c);
     }
     //input robot location
-    get_pose(a);
+    get_pose(b);
     //printf("pose=%lf,\n",r_x);
     //printf("pose=%lf,\n",r_y);
-    get_angle(b);
+    get_angle(a);
     //printf("angle=%lf,\n",r_r[0]);
     //printf("angle=%lf,\n",r_r[1]);
     //input laser data
@@ -300,7 +300,10 @@ RTC::ReturnCode_t mapping::onExecute(RTC::UniqueId ec_id)
     printf("l_y=%lf,\n", l_y[0]);
     printf("v_x=%lf,\n", a[0]);
     printf("v_y=%lf,\n", a[1]);
-
+    printf("a[0]=%lf,\n", m_target_velocity.data.vx);
+    printf("a[1]=%lf,\n", m_target_velocity.data.vy);
+    printf("b[0]=%lf,\n", m_target_position.data.position.x);
+    printf("b[1]=%lf,\n", m_target_position.data.position.y);
 
     map_value(omap);
     //IplImage Img = IplImage(img);
