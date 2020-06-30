@@ -130,10 +130,15 @@ RTC::ReturnCode_t mapping::onDeactivated(RTC::UniqueId ec_id)
 }
 
 void get_angle(double d[2]) {
-    r_r[0] = atan(d[1] / d[0]);
-    r_r[1] = atan(d[1] / d[0]) - 45 * PI / 180;
-    r_r[2] = atan(d[1] / d[0]) - 45 * PI / 180;
-    r_r[3] = atan(d[1] / d[0]) - 90 * PI / 180;
+    int r = 0;
+    if (d[0] == 0)
+        r = 0;
+    else
+        r= d[1] / d[0];
+    r_r[0] = atan(r);
+    r_r[1] = atan(r) - 45 * PI / 180;
+    r_r[2] = atan(r) - 45 * PI / 180;
+    r_r[3] = atan(r) - 90 * PI / 180;
 }
 
 void get_pose(double l[2]) {
@@ -164,8 +169,8 @@ void map_value(int omap[MAPSIZE][MAPSIZE]) {
     for (int l = 0; l < 4; l++)
     {
         int c = ceil(r_x);
-        printf("r_x=%lf,\n", r_x);
-        printf("r_r=%lf,\n", r_r[l]);
+        //printf("r_x=%lf,\n", r_x);
+        //printf("r_r=%lf,\n", r_r[l]);
         int d = floor(l_x[l]);
         for (int x = c; x < d; x++)
         {
@@ -257,12 +262,15 @@ RTC::ReturnCode_t mapping::onExecute(RTC::UniqueId ec_id)
         
         a[0] = m_target_velocity.data.vx;
         a[1] = m_target_velocity.data.vy;
+        //get_pose(a);
     }
     if (m_target_positionIn.isNew())
     {
         m_target_positionIn.read();
         b[0] = m_target_position.data.position.x;
         b[1] = m_target_position.data.position.y;
+        //get_angle(b);
+
     }
     if (m_ir_sensor_metre_outIn.isNew())
     {
@@ -271,8 +279,8 @@ RTC::ReturnCode_t mapping::onExecute(RTC::UniqueId ec_id)
         c[1] = m_ir_sensor_metre_out.data[1];
         c[2] = m_ir_sensor_metre_out.data[2];
         c[3] = m_ir_sensor_metre_out.data[3];
+        //get_data(c);
     }
-
     //input robot location
     get_pose(a);
     //printf("pose=%lf,\n",r_x);
@@ -282,8 +290,17 @@ RTC::ReturnCode_t mapping::onExecute(RTC::UniqueId ec_id)
     //printf("angle=%lf,\n",r_r[1]);
     //input laser data
     get_data(c);
-    printf("angle=%lf,\n", l_x[0]);
-    printf("angle=%lf,\n", l_y[0]);
+    //printf("angle=%lf,\n", l_x[0]);
+    //printf("angle=%lf,\n", l_y[0]);
+    printf("r_x=%lf,\n", r_x);
+    printf("r_y=%lf,\n", r_y);
+    printf("r_r=%lf,\n", r_r[0]);
+    printf("l=%lf,\n", c[0]);
+    printf("l_x=%lf,\n", l_x[0]);
+    printf("l_y=%lf,\n", l_y[0]);
+    printf("v_x=%lf,\n", a[0]);
+    printf("v_y=%lf,\n", a[1]);
+
 
     map_value(omap);
     //IplImage Img = IplImage(img);
@@ -322,7 +339,8 @@ RTC::ReturnCode_t mapping::onExecute(RTC::UniqueId ec_id)
   */
   //imshow("draw", img);
     cvShowImage("draw", vimg);
-    waitKey();
+    cvWaitKey(1);
+    cvReleaseImage(&vimg);
     int map[80][60][3];
     for (int i = 0; i < 80; i++) {
         for (int j = 0; j < 60; j++) {
@@ -333,6 +351,7 @@ RTC::ReturnCode_t mapping::onExecute(RTC::UniqueId ec_id)
             }
         }
     }
+    m_mapOut.write();
   return RTC::RTC_OK;
 }
 
